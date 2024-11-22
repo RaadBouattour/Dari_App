@@ -1,5 +1,6 @@
-/*import 'package:flutter/material.dart';
-import 'package:home_location/homeScreen.dart';
+import 'package:flutter/material.dart';
+import 'package:dari_version_complete/homeScreen.dart';
+import 'package:dari_version_complete/screen1.dart';
 
 class Screen2 extends StatelessWidget {
   @override
@@ -42,4 +43,3 @@ class Screen2 extends StatelessWidget {
     );
   }
 }
-*/

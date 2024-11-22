@@ -1,7 +1,6 @@
-/*import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'dart:async';
-
-import 'package:dari_version_complete/screen2.dart;
+import 'package:dari_version_complete/screen2.dart';
 
 class Screen1 extends StatefulWidget {
   @override
@@ -23,10 +22,12 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
     _animation = Tween<double>(begin: 100, end: 150).animate(_controller!);
 
     Timer(Duration(seconds: 2), () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => Screen2()),
-      );
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Screen2()),
+        );
+      }
     });
   }
 
@@ -48,7 +49,7 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
               builder: (context, child) {
                 return Image.asset(
                   'assets/logo.png',
-                  height: _animation!.value,
+                  height: _animation?.value ?? 100,
                 );
               },
             ),
@@ -65,4 +66,3 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
     );
   }
 }
-*/
