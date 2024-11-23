@@ -49,7 +49,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     });
 
     try {
-      const String url = 'http://192.168.100.135:5000/auth/register';
+      const String url = 'http://192.168.123.150:5000/auth/register';
 
       final response = await http.post(
         Uri.parse(url),

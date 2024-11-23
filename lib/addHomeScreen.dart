@@ -1,8 +1,13 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:dari_version_complete/api_service.dart';
 import 'package:dari_version_complete/allHousesScreen.dart';
 import 'package:dari_version_complete/homeScreen.dart';
 import 'package:dari_version_complete/loginScreen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddHomeScreen extends StatefulWidget {
   @override
@@ -11,57 +16,124 @@ class AddHomeScreen extends StatefulWidget {
 
 class _AddHomeScreenState extends State<AddHomeScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _titleController = TextEditingController();
   final TextEditingController _typeController = TextEditingController();
-  final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _priceController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _pricePerNightController = TextEditingController();
+  final TextEditingController _pricePerMonthController = TextEditingController();
+  final TextEditingController _surfaceController = TextEditingController();
   final TextEditingController _roomsController = TextEditingController();
   final TextEditingController _wcController = TextEditingController();
 
-  int _selectedIndex = 2; // Initial index for "Add"
+  File? _selectedImage;
+  int _currentStep = 0;
+  int _selectedIndex = 2;
   bool _isLoading = false;
+  bool _isLoggedIn = false;
+  String? _authToken;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('authToken');
+
+    if (token == null) {
+      setState(() {
+        _isLoggedIn = false;
+      });
+      return;
+    }
+
+    final url = Uri.parse('http://192.168.123.150:5000/auth/check-login');///////////////////jjjjjjjjjjjjjjjjjj
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _isLoggedIn = true;
+          _authToken = token; // Store the token for API calls
+        });
+      } else {
+        setState(() {
+          _isLoggedIn = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoggedIn = false;
+      });
+    }
+  }
 
   void _onItemTapped(int index) {
-    if (_selectedIndex != index) {
-      setState(() {
-        _selectedIndex = index;
-      });
+    setState(() {
+      _selectedIndex = index;
+    });
 
-      switch (index) {
-        case 0:
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => HomeScreen()),
-          );
-          break;
-        case 1:
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => AllHousesScreen()),
-          );
-          break;
-        case 2:
-          break;
-        case 3:
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => LoginScreen()),
-          );
-          break;
-      }
+    switch (index) {
+      case 0:
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+        break;
+      case 1:
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AllHousesScreen()));
+        break;
+      case 2:
+        break;
+      case 3:
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+        break;
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+      });
     }
   }
 
   Future<void> _submitForm() async {
+    if (!_isLoggedIn) {
+      _showLoginPrompt();
+      return;
+    }
+
     if (_formKey.currentState?.validate() ?? false) {
+      if (_selectedImage == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Veuillez ajouter une image pour la propriété.')),
+        );
+        return;
+      }
+
       final houseData = {
+        'title': _titleController.text,
         'type': _typeController.text,
-        'location': _addressController.text,
-        'pricePerMonth': double.tryParse(_priceController.text) ?? 0,
         'description': _descriptionController.text,
+        'location': _addressController.text,
+        'pricePerNight': double.tryParse(_pricePerNightController.text) ?? 0,
+        'pricePerMonth': double.tryParse(_pricePerMonthController.text) ?? 0,
+        'surface': double.tryParse(_surfaceController.text) ?? 0,
         'bedrooms': int.tryParse(_roomsController.text) ?? 0,
         'bathrooms': int.tryParse(_wcController.text) ?? 0,
-        'images': [], // Add image upload logic here
+        'images': [_selectedImage!.path],
         'isAvailable': true,
       };
 
@@ -70,17 +142,32 @@ class _AddHomeScreenState extends State<AddHomeScreen> {
       });
 
       try {
-        await ApiService.addHouse(houseData);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('House added successfully!')),
+        final url = Uri.parse('http://192.168.123.150:5000/houses/add');//////////////////jjjjjjjjjjjjjj
+        final response = await http.post(
+          url,
+          headers: {
+            'Authorization': 'Bearer $_authToken',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(houseData),
         );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => AllHousesScreen()),
-        );
+
+        if (response.statusCode == 201) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Maison ajoutée avec succès!')),
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => AllHousesScreen()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Échec de l\'ajout de la maison: ${response.body}')),
+          );
+        }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add house: $e')),
+          SnackBar(content: Text('Erreur: $e')),
         );
       } finally {
         setState(() {
@@ -90,123 +177,128 @@ class _AddHomeScreenState extends State<AddHomeScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(174, 159, 237, 251),
-        elevation: 0,
-        title: Text(
-          "Add Property",
-          style: TextStyle(color: Colors.black),
-        ),
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
-      body: Container(
-        alignment: Alignment.topCenter,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              const Color.fromARGB(174, 159, 237, 251),
-              const Color.fromARGB(218, 79, 214, 251),
-            ],
+  void _showLoginPrompt() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Connexion requise"),
+        content: const Text("Veuillez vous connecter avant d'ajouter une propriété."),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+            },
+            child: const Text("Se connecter"),
           ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildTextField("Type :", "Type of Property", _typeController),
-                    SizedBox(height: 20),
-                    _buildTextField("Address :", "Property Address", _addressController),
-                    SizedBox(height: 20),
-                    _buildTextField("Price :", "Monthly Price", _priceController),
-                    SizedBox(height: 20),
-                    _buildTextField("Description :", "Property Description", _descriptionController),
-                    SizedBox(height: 20),
-                    _buildTextField("Number of Rooms :", "Number of Bedrooms", _roomsController),
-                    SizedBox(height: 20),
-                    _buildTextField("Number of WC :", "Number of Bathrooms", _wcController),
-                    SizedBox(height: 30),
-                    Center(
-                      child: _isLoading
-                          ? CircularProgressIndicator()
-                          : ElevatedButton(
-                        onPressed: _submitForm,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                        ),
-                        child: Text(
-                          "Submit",
-                          style: TextStyle(fontSize: 18, color: Colors.white),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
-    );
-  }
-
-  Widget _buildBottomNavigationBar() {
-    return Container(
-      margin: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            spreadRadius: 5,
-            blurRadius: 15,
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text("Annuler"),
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(30),
-        child: BottomNavigationBar(
-          backgroundColor: const Color.fromARGB(255, 101, 25, 25),
-          selectedItemColor: Colors.blueAccent,
-          unselectedItemColor: const Color.fromARGB(255, 141, 139, 139),
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-          showSelectedLabels: true,
-          showUnselectedLabels: false,
-          items: [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-            BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), label: 'Add'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-          ],
-          selectedFontSize: 15.0,
-          unselectedFontSize: 15.0,
-          iconSize: 25.0,
-        ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Ajouter une propriété"),
+        backgroundColor: Colors.blue,
+      ),
+      body: Stepper(
+        currentStep: _currentStep,
+        onStepContinue: () {
+          if (_formKey.currentState?.validate() ?? false) {
+            if (_currentStep < 1) {
+              setState(() {
+                _currentStep++;
+              });
+            } else {
+              _submitForm();
+            }
+          }
+        },
+        onStepCancel: () {
+          if (_currentStep > 0) {
+            setState(() {
+              _currentStep--;
+            });
+          }
+        },
+        steps: [
+          Step(
+            title: const Text("Informations de base"),
+            content: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildTextField("Titre :", "Titre de la propriété", _titleController),
+                  const SizedBox(height: 20),
+                  _buildTextField("Type :", "Type de propriété", _typeController),
+                  const SizedBox(height: 20),
+                  _buildTextField("Description :", "Description de la propriété", _descriptionController),
+                  const SizedBox(height: 20),
+                  _buildTextField("Adresse :", "Adresse de la propriété", _addressController),
+                  const SizedBox(height: 20),
+                  _buildTextField("Prix par nuit :", "Prix en TND", _pricePerNightController),
+                  const SizedBox(height: 20),
+                  _buildTextField("Prix par mois :", "Prix en TND", _pricePerMonthController),
+                  const SizedBox(height: 20),
+                  _buildTextField("Surface :", "Surface en m²", _surfaceController),
+                ],
+              ),
+            ),
+          ),
+          Step(
+            title: const Text("Détails supplémentaires"),
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildTextField("Chambres :", "Nombre de chambres", _roomsController),
+                const SizedBox(height: 20),
+                _buildTextField("Salles de bain :", "Nombre de salles de bain", _wcController),
+                const SizedBox(height: 20),
+                const Text(
+                  "Ajouter une photo :",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(height: 10),
+                GestureDetector(
+                  onTap: _pickImage,
+                  child: Container(
+                    height: 150,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.grey[200],
+                    ),
+                    child: _selectedImage == null
+                        ? const Center(child: Text("Cliquez pour ajouter une image"))
+                        : Image.file(
+                      _selectedImage!,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Accueil'),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Rechercher'),
+          BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Ajouter'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
+        ],
       ),
     );
   }
@@ -215,14 +307,11 @@ class _AddHomeScreenState extends State<AddHomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-        ),
-        SizedBox(height: 5),
+        Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+        const SizedBox(height: 5),
         TextFormField(
           controller: controller,
-          validator: (value) => value?.isEmpty ?? true ? "This field is required" : null,
+          validator: (value) => value?.isEmpty ?? true ? "Ce champ est obligatoire" : null,
           decoration: InputDecoration(
             hintText: placeholder,
             filled: true,

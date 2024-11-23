@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:dari_version_complete/api_service.dart';
 import 'SignUpScreen.dart';
-
 import 'dashboardScreen.dart';
 import 'homeScreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -50,19 +50,25 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final response = await ApiService.login(email, password);
 
-      // Handle successful login
+      // Extract token from response
       final token = response['token'];
+      final role = response['role'];
+
+      // Save token and role in SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('authToken', token);
+      await prefs.setString('userRole', role);
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login successful! Token: $token')),
+        const SnackBar(content: Text('Login successful!')),
       );
 
-      // Navigate to Dashboard (replace this with your actual screen)
+      // Navigate to Dashboard
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => DashboardScreen())
+        MaterialPageRoute(builder: (context) => DashboardScreen()),
       );
     } catch (error) {
-      // Handle error
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Login failed: $error')),
       );
@@ -73,7 +79,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // touskiee design
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,11 +88,11 @@ class _LoginScreenState extends State<LoginScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-
-
           onPressed: () {
             Navigator.push(
-                context, MaterialPageRoute(builder: (context) => HomeScreen()));
+              context,
+              MaterialPageRoute(builder: (context) => HomeScreen()),
+            );
           },
         ),
       ),
@@ -108,9 +113,15 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 50),
-              const Text("Login", style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+              const Text(
+                "Login",
+                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 10),
-              const Text("Enter your credentials to sign in", style: TextStyle(fontSize: 16, color: Colors.grey)),
+              const Text(
+                "Enter your credentials to sign in",
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+              ),
               const SizedBox(height: 30),
               TextField(
                 controller: _emailController,
@@ -159,12 +170,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
                 ),
-                child: const Text("Sign In", style: TextStyle(color: Colors.white, fontSize: 16)),
+                child: const Text(
+                  "Sign In",
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
               ),
               const SizedBox(height: 20),
               GestureDetector(
                 onTap: () {
-                  // Navigate to Sign-Up Screen
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => SignUpScreen()),

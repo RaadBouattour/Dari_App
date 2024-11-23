@@ -1,6 +1,6 @@
+import 'package:dari_version_complete/paymentScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:dari_version_complete/api_service.dart';
-//import 'package:home_location/paymentScreen.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:dari_version_complete/addHomeScreen.dart';
 import 'package:dari_version_complete/allHousesScreen.dart';
@@ -50,10 +50,10 @@ class _ReservationPageState extends State<ReservationScreen> {
       );
 
       // Navigate to Payment Screen
-     /* Navigator.push(
+      Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => PaymentScreen()),
-      );*/
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erreur : ${result['message']}')),
