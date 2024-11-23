@@ -2,11 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-<<<<<<< HEAD
-  static const String baseUrl = 'http://192.168.26.150:5000'; // Dima Yetbaddel dima tf9do
-=======
+
   static const String baseUrl = 'http://192.168.100.135:5000'; // Dima Yetbaddel dima tf9do
->>>>>>> 088c0d4 (Added Allhouses + HomeScreen)
 
   // Login API
   static Future<Map<String, dynamic>> login(String email, String password) async {
@@ -113,7 +110,7 @@ class ApiService {
   }
 */
 
-<<<<<<< HEAD
+
   // Fetch all houses
   static Future<List<Map<String, dynamic>>> fetchHouses() async {
     final url = Uri.parse('$baseUrl/houses/getall');
@@ -127,8 +124,6 @@ class ApiService {
     }
   }
 
-=======
->>>>>>> 088c0d4 (Added Allhouses + HomeScreen)
 
   // Method to add a house
   static Future<void> addHouse(Map<String, dynamic> houseData) async {
@@ -182,22 +177,8 @@ class ApiService {
   }
 
 
-<<<<<<< HEAD
-=======
-  // Fetch all houses
-  static Future<List<Map<String, dynamic>>> fetchHouses() async {
-    final url = Uri.parse('$baseUrl/houses/getall');
-    final response = await http.get(url);
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return List<Map<String, dynamic>>.from(data);
-    } else {
-      throw Exception('Failed to fetch houses: ${response.body}');
-    }
-  }
 
->>>>>>> 088c0d4 (Added Allhouses + HomeScreen)
   // get all houses
 
   static Future<List<dynamic>> fetchAllHouses() async {

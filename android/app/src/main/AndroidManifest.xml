@@ -1,9 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-<<<<<<< HEAD
-=======
 
-
->>>>>>> 088c0d4 (Added Allhouses + HomeScreen)
     <application
         android:label="dari_version_complete"
         android:name="${applicationName}"

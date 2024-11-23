@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:dari_version_complete/api_service.dart';
 import 'SignUpScreen.dart';
-<<<<<<< HEAD
-=======
+
 import 'homeScreen.dart';
->>>>>>> 088c0d4 (Added Allhouses + HomeScreen)
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -84,14 +82,12 @@ class _LoginScreenState extends State<LoginScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-<<<<<<< HEAD
-          onPressed: () => Navigator.pop(context),
-=======
+
+
           onPressed: () {
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => HomeScreen()));
           },
->>>>>>> 088c0d4 (Added Allhouses + HomeScreen)
         ),
       ),
       body: Container(

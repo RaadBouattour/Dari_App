@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-<<<<<<< HEAD
-=======
 import 'homeScreen.dart';
->>>>>>> 088c0d4 (Added Allhouses + HomeScreen)
 import 'loginScreen.dart';
 import 'api_service.dart';
 
@@ -90,11 +87,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
     });
 
     try {
-<<<<<<< HEAD
-      const String url = 'http://192.168.26.150:5000/auth/register'; // Ensure backend URL is correct
-=======
       const String url = 'http://192.168.100.135:5000/auth/register'; // Ensure backend URL is correct
->>>>>>> 088c0d4 (Added Allhouses + HomeScreen)
+
+
 
       final response = await http.post(
         Uri.parse(url),
@@ -149,12 +144,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-<<<<<<< HEAD
+
             Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
-=======
+
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => HomeScreen()));
->>>>>>> 088c0d4 (Added Allhouses + HomeScreen)
           },
         ),
       ),

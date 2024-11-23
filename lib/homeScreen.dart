@@ -1,7 +1,5 @@
-<<<<<<< HEAD
-=======
+
 import 'package:dari_version_complete/allHousesScreen.dart';
->>>>>>> 088c0d4 (Added Allhouses + HomeScreen)
 import 'package:flutter/material.dart';
 import 'package:dari_version_complete/api_service.dart';
 import 'reservationScreen.dart';
@@ -58,11 +56,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     switch (index) {
       case 1:
-<<<<<<< HEAD
+
         Navigator.push(context, MaterialPageRoute(builder: (context) => Text('All Houses Screen Placeholder')));
-=======
+
         Navigator.push(context, MaterialPageRoute(builder: (context) => AllHousesScreen()));
->>>>>>> 088c0d4 (Added Allhouses + HomeScreen)
         break;
       case 2:
       // Add House navigation if needed

@@ -23,11 +23,8 @@ class _AllHousesScreenState extends State<AllHousesScreen> {
 
   Future<void> _fetchHouses() async {
     try {
-<<<<<<< HEAD
-      final fetchedHouses = await ApiService.fetchAllHouses();
-=======
       final fetchedHouses = await ApiService.fetchHouses();
->>>>>>> 088c0d4 (Added Allhouses + HomeScreen)
+
       setState(() {
         houses = fetchedHouses;
         filteredHouses = fetchedHouses; // Initially display all houses
@@ -92,12 +89,11 @@ class _AllHousesScreenState extends State<AllHousesScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-<<<<<<< HEAD
             Navigator.pop(context);
-=======
+
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => HomeScreen()));
->>>>>>> 088c0d4 (Added Allhouses + HomeScreen)
+
           },
         ),
       ),
