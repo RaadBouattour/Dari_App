@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dari_version_complete/api_service.dart';
 import 'SignUpScreen.dart';
 
+import 'dashboardScreen.dart';
 import 'homeScreen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -58,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
       // Navigate to Dashboard (replace this with your actual screen)
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const Text('Dashboard Placeholder')),
+        MaterialPageRoute(builder: (context) => DashboardScreen())
       );
     } catch (error) {
       // Handle error

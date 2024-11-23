@@ -1,4 +1,3 @@
-
 import 'package:dari_version_complete/addHomeScreen.dart';
 import 'package:dari_version_complete/allHousesScreen.dart';
 import 'package:dari_version_complete/loginScreen.dart';
@@ -58,13 +57,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     switch (index) {
       case 1:
-
-        //Navigator.push(context, MaterialPageRoute(builder: (context) => Text('All Houses Screen Placeholder')));
-
         Navigator.push(context, MaterialPageRoute(builder: (context) => AllHousesScreen()));
         break;
       case 2:
-      // Add House navigation if needed
         Navigator.push(context, MaterialPageRoute(builder: (context) => AddHomeScreen()));
         break;
       case 3:
@@ -165,11 +160,164 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: EdgeInsets.symmetric(horizontal: 15),
       child: TextField(
         onChanged: filterHomes,
-        decoration:
-        InputDecoration(hintText: 'Search for a home', border: InputBorder.none, icon: Icon(Icons.search, color: Colors.grey)),
+        decoration: InputDecoration(
+          hintText: 'Search for a home',
+          border: InputBorder.none,
+          icon: Icon(Icons.search, color: Colors.grey),
+        ),
       ),
     );
   }
+
+  void _showHouseDetails(BuildContext context, Map<String, dynamic> house) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.65,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color.fromARGB(255, 174, 218, 252),
+                Color.fromARGB(255, 119, 185, 255),
+              ],
+            ),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30),
+              topRight: Radius.circular(30),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Main image
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: Image.network(
+                    house['images'] != null && house['images'].isNotEmpty
+                        ? house['images'][0]
+                        : 'https://via.placeholder.com/300',
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              // Title
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  house['title'] ?? 'No title',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
+                  ),
+                ),
+              ),
+              SizedBox(height: 8),
+              // Location and details
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.location_on, color: Colors.black, size: 20),
+                        SizedBox(width: 5),
+                        Text(
+                          house['location'] ?? 'No location',
+                          style: TextStyle(fontSize: 16, color: Colors.black),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Icon(Icons.bed, color: Colors.black, size: 20),
+                        SizedBox(width: 5),
+                        Text(
+                          '${house['rooms'] ?? 'N/A'} rooms',
+                          style: TextStyle(fontSize: 16, color: Colors.black),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Icon(Icons.bathtub, color: Colors.black, size: 20),
+                        SizedBox(width: 5),
+                        Text(
+                          '${house['bathrooms'] ?? 'N/A'} bathrooms',
+                          style: TextStyle(fontSize: 16, color: Colors.black),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 16),
+              // Description
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  house['description'] ?? 'No description available',
+                  style: TextStyle(fontSize: 16, color: Colors.black87),
+                ),
+              ),
+              Spacer(),
+              // Price and Reserve Button
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      house['pricePerMonth'] != null
+                          ? '${house['pricePerMonth']} TND per month'
+                          : 'No price available',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange,
+                      ),
+                    ),
+
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ReservationScreen(houseId: house['_id']),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                      child: Text(
+                        "Reserve Now",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
 
   Widget _buildSection(BuildContext context, {required String title, required List<dynamic> homes}) {
     return Column(
@@ -185,9 +333,7 @@ class _HomeScreenState extends State<HomeScreen> {
             itemBuilder: (context, index) {
               final home = homes[index];
               return GestureDetector(
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ReservationScreen(houseId: '',)));
-                },
+                onTap: () => _showHouseDetails(context, home), // Call modal directly
                 child: Container(
                   width: 160,
                   margin: EdgeInsets.only(right: 16),
