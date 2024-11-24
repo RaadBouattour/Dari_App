@@ -333,7 +333,7 @@ class _DashboardScreen extends State<DashboardScreen> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => ReservationScreen(houseId: house['_id'])),
+                          MaterialPageRoute(builder: (context) => ReservationScreen()),
                         );
                       },
                       style: ElevatedButton.styleFrom(

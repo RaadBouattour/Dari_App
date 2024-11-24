@@ -97,8 +97,6 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         );
         break;
-
-        break;
       case 3:
         Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
         break;
@@ -327,12 +325,42 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ReservationScreen(houseId: house['_id']),
-                          ),
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('Sign In or Sign Up'),
+                              content: Text('Please choose an option:'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context); // Close the dialog
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => LoginScreen(), // Replace with your Sign In screen
+                                      ),
+                                    );
+                                  },
+                                  child: Text('Sign In'),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context); // Close the dialog
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => SignUpScreen(), // Replace with your Sign Up screen
+                                      ),
+                                    );
+                                  },
+                                  child: Text('Sign Up'),
+                                ),
+                              ],
+                            );
+                          },
                         );
+
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,

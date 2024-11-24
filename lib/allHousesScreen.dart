@@ -403,7 +403,7 @@ class _AllHousesScreenState extends State<AllHousesScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                                ReservationScreen(houseId: house['_id']),
+                                ReservationScreen(),
                           ),
                         );
                       },

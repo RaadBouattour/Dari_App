@@ -1,74 +1,20 @@
-import 'package:dari_version_complete/paymentScreen.dart';
 import 'package:flutter/material.dart';
-import 'package:dari_version_complete/api_service.dart';
+import 'package:dari_version_complete/paymentScreen.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:dari_version_complete/addHomeScreen.dart';
 import 'package:dari_version_complete/allHousesScreen.dart';
 import 'package:dari_version_complete/loginScreen.dart';
 
 class ReservationScreen extends StatefulWidget {
-  final String houseId;
-
-  ReservationScreen({required this.houseId});
-
   @override
   _ReservationPageState createState() => _ReservationPageState();
 }
 
 class _ReservationPageState extends State<ReservationScreen> {
-  DateTime? _startDate;
-  DateTime? _endDate;
-  DateTime _focusedDay = DateTime.now();
-  int _selectedIndex = 0;
-  bool _isLoading = false;
-
-  Future<void> _handleReservation() async {
-    if (_startDate == null || _endDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Veuillez sélectionner les dates de début et de fin')),
-      );
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final result = await ApiService.reserveHouse(
-        houseId: widget.houseId,
-        checkInDate: _startDate!,
-        checkOutDate: _endDate!,
-      );
-
-      setState(() {
-        _isLoading = false;
-      });
-
-      if (result != null && result['success'] == true) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Réservation réussie : ${result['message'] ?? ''}')),
-        );
-
-        // Navigate to Payment Screen
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => PaymentScreen()),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur : ${result?['message'] ?? 'Une erreur est survenue'}')),
-        );
-      }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur : ${e.toString()}')),
-      );
-    }
-  }
+  DateTime? _startDate; // Start date of reservation
+  DateTime? _endDate; // End date of reservation
+  DateTime _focusedDay = DateTime.now(); // Currently focused day
+  int _selectedIndex = 0; // Index for bottom navigation
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +48,10 @@ class _ReservationPageState extends State<ReservationScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(height: 20),
-              Text('Choisir une date de réservation', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              Text(
+                'Choisir une date de réservation',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
               SizedBox(height: 20),
               TableCalendar(
                 firstDay: DateTime.utc(2020, 1, 1),
@@ -132,20 +81,30 @@ class _ReservationPageState extends State<ReservationScreen> {
                 ),
               ),
               SizedBox(height: 20),
+
               Text(
-                'Date de début : ${_startDate?.toLocal().toString().split(' ')[0] ?? 'Non sélectionnée'}',
+                'Date de début : ${_startDate != null ? _startDate!.toLocal().toString().split(' ')[0] : 'Non sélectionnée'}',
                 style: TextStyle(fontSize: 18, fontStyle: FontStyle.italic, color: Colors.blueAccent),
               ),
+
               SizedBox(height: 10),
+
               Text(
-                'Date de fin : ${_endDate?.toLocal().toString().split(' ')[0] ?? 'Non sélectionnée'}',
+                'Date de fin : ${_endDate != null ? _endDate!.toLocal().toString().split(' ')[0] : 'Non sélectionnée'}',
                 style: TextStyle(fontSize: 18, fontStyle: FontStyle.italic, color: Colors.blueAccent),
               ),
+
               SizedBox(height: 20),
-              _isLoading
-                  ? CircularProgressIndicator()
-                  : ElevatedButton(
-                onPressed: _handleReservation,
+
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PaymentScreen(),
+                    ),
+                  );
+                },
                 child: Text('Payer'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
@@ -161,6 +120,7 @@ class _ReservationPageState extends State<ReservationScreen> {
     );
   }
 
+  // Build the bottom navigation bar
   Widget _buildBottomNavigationBar() {
     return Container(
       margin: EdgeInsets.all(20),
@@ -168,7 +128,8 @@ class _ReservationPageState extends State<ReservationScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.2), spreadRadius: 5, blurRadius: 15),
+          BoxShadow(
+              color: Colors.black.withOpacity(0.2), spreadRadius: 5, blurRadius: 15),
         ],
       ),
       child: ClipRRect(
@@ -180,13 +141,13 @@ class _ReservationPageState extends State<ReservationScreen> {
           currentIndex: _selectedIndex,
           onTap: (index) {
             setState(() {
-              _selectedIndex = index;
+              _selectedIndex = index; // Update selected index
             });
             switch (_selectedIndex) {
               case 0:
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => ReservationScreen(houseId: widget.houseId)),
+                  MaterialPageRoute(builder: (context) => ReservationScreen()),
                 );
                 break;
               case 1:

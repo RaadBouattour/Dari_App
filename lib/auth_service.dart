@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  static const String baseUrl = 'http://192.168.100.135:5000'; // ***** Dima Yetbaddel dima tf9doooo ***** ///////
+  static const String baseUrl = 'http://192.168.123.150:5000'; // ***** Dima Yetbaddel dima tf9doooo ***** ///////
 
   static Future<bool> checkLoginStatus() async {
     final prefs = await SharedPreferences.getInstance();
