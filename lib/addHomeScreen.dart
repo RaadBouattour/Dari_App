@@ -26,6 +26,9 @@ class _AddHomeScreenState extends State<AddHomeScreen> {
   final TextEditingController _roomsController = TextEditingController();
   final TextEditingController _wcController = TextEditingController();
 
+  static const String baseUrl = 'http://192.168.100.135:5000'; // Dima Yetbaddel dima tf9do
+
+
   File? _selectedImage;
   int _currentStep = 0;
   int _selectedIndex = 2;
@@ -50,7 +53,7 @@ class _AddHomeScreenState extends State<AddHomeScreen> {
       return;
     }
 
-    final url = Uri.parse('http://192.168.123.150:5000/auth/check-login');///////////////////jjjjjjjjjjjjjjjjjj
+    final url = Uri.parse('$baseUrl/auth/check-login'); //********************//
     try {
       final response = await http.get(
         url,
@@ -142,7 +145,7 @@ class _AddHomeScreenState extends State<AddHomeScreen> {
       });
 
       try {
-        final url = Uri.parse('http://192.168.123.150:5000/houses/add');//////////////////jjjjjjjjjjjjjj
+        final url = Uri.parse('$baseUrl/houses/add');       ////***********//
         final response = await http.post(
           url,
           headers: {

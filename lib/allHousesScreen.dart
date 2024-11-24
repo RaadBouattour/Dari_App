@@ -3,6 +3,9 @@ import 'package:dari_version_complete/api_service.dart';
 import 'package:dari_version_complete/addHomeScreen.dart';
 import 'package:dari_version_complete/homeScreen.dart';
 import 'package:dari_version_complete/loginScreen.dart';
+import 'package:dari_version_complete/reservationScreen.dart';
+
+import 'SignUpScreen.dart';
 
 class AllHousesScreen extends StatefulWidget {
   @override
@@ -24,7 +27,6 @@ class _AllHousesScreenState extends State<AllHousesScreen> {
   Future<void> _fetchHouses() async {
     try {
       final fetchedHouses = await ApiService.fetchHouses();
-
       setState(() {
         houses = fetchedHouses;
         filteredHouses = fetchedHouses; // Initially display all houses
@@ -64,10 +66,43 @@ class _AllHousesScreenState extends State<AllHousesScreen> {
         );
         break;
       case 2:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => AddHomeScreen()),
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Sign In or Sign Up'),
+              content: Text('Please choose an option:'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Close the dialog
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LoginScreen(), // Replace with your Sign In screen
+                      ),
+                    );
+                  },
+                  child: Text('Sign In'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Close the dialog
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SignUpScreen(), // Replace with your Sign Up screen
+                      ),
+                    );
+                  },
+                  child: Text('Sign Up'),
+                ),
+              ],
+            );
+          },
         );
+        break;
+
         break;
       case 3:
         Navigator.push(
@@ -90,10 +125,8 @@ class _AllHousesScreenState extends State<AllHousesScreen> {
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pop(context);
-
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => HomeScreen()));
-
           },
         ),
       ),
@@ -117,7 +150,8 @@ class _AllHousesScreenState extends State<AllHousesScreen> {
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -142,62 +176,11 @@ class _AllHousesScreenState extends State<AllHousesScreen> {
 
                       return GestureDetector(
                         onTap: () {
-                          // Show the bottom sheet with house details
-                          showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            backgroundColor: Colors.transparent,
-                            builder: (BuildContext context) {
-                              return Container(
-                                height: MediaQuery.of(context).size.height * 0.68,
-                                decoration: BoxDecoration(
-                                  color: Color.fromARGB(174, 159, 237, 251),
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(20),
-                                    topRight: Radius.circular(20),
-                                  ),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        house['title'] ?? 'No title',
-                                        style: TextStyle(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      SizedBox(height: 10),
-                                      Text(
-                                        house['location'] ?? 'No location',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                      SizedBox(height: 10),
-                                      Expanded(
-                                        child: Image.network(
-                                          house['images']?[0] ?? '',
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                      SizedBox(height: 10),
-                                      Text(
-                                        house['description'] ?? 'No description available',
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          );
+                          _showHouseDetails(context, house);
                         },
                         child: Container(
-                          margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                          margin: EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 16),
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -216,7 +199,8 @@ class _AllHousesScreenState extends State<AllHousesScreen> {
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
                                 child: Image.network(
-                                  house['images']?[0] ?? '',
+                                  house['images']?[0] ??
+                                      'https://via.placeholder.com/150',
                                   height: 80,
                                   width: 80,
                                   fit: BoxFit.cover,
@@ -225,7 +209,8 @@ class _AllHousesScreenState extends State<AllHousesScreen> {
                               SizedBox(width: 16),
                               Expanded(
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       house['title'] ?? 'No title',
@@ -237,7 +222,8 @@ class _AllHousesScreenState extends State<AllHousesScreen> {
                                     SizedBox(height: 5),
                                     Text(
                                       house['location'] ?? 'No location',
-                                      style: TextStyle(color: Colors.grey[600]),
+                                      style: TextStyle(
+                                          color: Colors.grey[600]),
                                     ),
                                   ],
                                 ),
@@ -280,7 +266,8 @@ class _AllHousesScreenState extends State<AllHousesScreen> {
             items: [
               BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
               BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-              BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), label: 'Add'),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.add_circle_outline), label: 'Add'),
               BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
             ],
             selectedFontSize: 15.0,
@@ -289,6 +276,155 @@ class _AllHousesScreenState extends State<AllHousesScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showHouseDetails(BuildContext context, Map<String, dynamic> house) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.65,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color.fromARGB(255, 174, 218, 252),
+                Color.fromARGB(255, 119, 185, 255),
+              ],
+            ),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30),
+              topRight: Radius.circular(30),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Main image
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: Image.network(
+                    house['images'] != null && house['images'].isNotEmpty
+                        ? house['images'][0]
+                        : 'https://via.placeholder.com/300',
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              // Title
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  house['title'] ?? 'No title',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
+                  ),
+                ),
+              ),
+              SizedBox(height: 8),
+              // Location and details
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.location_on, color: Colors.black, size: 20),
+                        SizedBox(width: 5),
+                        Text(
+                          house['location'] ?? 'No location',
+                          style: TextStyle(fontSize: 16, color: Colors.black),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Icon(Icons.bed, color: Colors.black, size: 20),
+                        SizedBox(width: 5),
+                        Text(
+                          '${house['rooms'] ?? 'N/A'} rooms',
+                          style: TextStyle(fontSize: 16, color: Colors.black),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Icon(Icons.bathtub, color: Colors.black, size: 20),
+                        SizedBox(width: 5),
+                        Text(
+                          '${house['bathrooms'] ?? 'N/A'} bathrooms',
+                          style: TextStyle(fontSize: 16, color: Colors.black),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 16),
+              // Description
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  house['description'] ?? 'No description available',
+                  style: TextStyle(fontSize: 16, color: Colors.black87),
+                ),
+              ),
+              Spacer(),
+              // Price and Reserve Button
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      house['pricePerMonth'] != null
+                          ? '${house['pricePerMonth']} TND per month'
+                          : 'No price available',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange,
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ReservationScreen(houseId: house['_id']),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                      child: Text(
+                        "Reserve Now",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

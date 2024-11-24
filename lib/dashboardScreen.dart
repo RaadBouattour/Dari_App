@@ -70,7 +70,7 @@ class _DashboardScreen extends State<DashboardScreen> {
         Navigator.push(context, MaterialPageRoute(builder: (context) => AddHomeScreen()));
         break;
       case 3:
-        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+        //Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
         break;
     }
   }

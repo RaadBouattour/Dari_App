@@ -3,6 +3,7 @@ import 'package:dari_version_complete/allHousesScreen.dart';
 import 'package:dari_version_complete/loginScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:dari_version_complete/api_service.dart';
+import 'SignUpScreen.dart';
 import 'reservationScreen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -60,7 +61,43 @@ class _HomeScreenState extends State<HomeScreen> {
         Navigator.push(context, MaterialPageRoute(builder: (context) => AllHousesScreen()));
         break;
       case 2:
-        Navigator.push(context, MaterialPageRoute(builder: (context) => AddHomeScreen()));
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Sign In or Sign Up'),
+              content: Text('Please choose an option:'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Close the dialog
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LoginScreen(), // Replace with your Sign In screen
+                      ),
+                    );
+                  },
+                  child: Text('Sign In'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Close the dialog
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SignUpScreen(), // Replace with your Sign Up screen
+                      ),
+                    );
+                  },
+                  child: Text('Sign Up'),
+                ),
+              ],
+            );
+          },
+        );
+        break;
+
         break;
       case 3:
         Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));

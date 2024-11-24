@@ -34,29 +34,38 @@ class _ReservationPageState extends State<ReservationScreen> {
       _isLoading = true;
     });
 
-    final result = await ApiService.reserveHouse(
-      houseId: widget.houseId,
-      checkInDate: _startDate!,
-      checkOutDate: _endDate!,
-    );
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    if (result['success']) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Réservation réussie : ${result['message']}')),
+    try {
+      final result = await ApiService.reserveHouse(
+        houseId: widget.houseId,
+        checkInDate: _startDate!,
+        checkOutDate: _endDate!,
       );
 
-      // Navigate to Payment Screen
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => PaymentScreen()),
-      );
-    } else {
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (result != null && result['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Réservation réussie : ${result['message'] ?? ''}')),
+        );
+
+        // Navigate to Payment Screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => PaymentScreen()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur : ${result?['message'] ?? 'Une erreur est survenue'}')),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur : ${result['message']}')),
+        SnackBar(content: Text('Erreur : ${e.toString()}')),
       );
     }
   }
@@ -175,16 +184,28 @@ class _ReservationPageState extends State<ReservationScreen> {
             });
             switch (_selectedIndex) {
               case 0:
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ReservationScreen(houseId: widget.houseId)));
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => ReservationScreen(houseId: widget.houseId)),
+                );
                 break;
               case 1:
-                Navigator.push(context, MaterialPageRoute(builder: (context) => AllHousesScreen()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AllHousesScreen()),
+                );
                 break;
               case 2:
-                Navigator.push(context, MaterialPageRoute(builder: (context) => AddHomeScreen()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AddHomeScreen()),
+                );
                 break;
               case 3:
-                Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                );
                 break;
               default:
                 print('Index non valide: $_selectedIndex');

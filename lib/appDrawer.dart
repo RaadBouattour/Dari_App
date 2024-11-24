@@ -6,68 +6,89 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: Container(
-        width: 100,
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Color.fromARGB(145, 81, 228, 253),
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.blueAccent, Colors.lightBlueAccent],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
+            ),
+            child: Align(
+              alignment: Alignment.centerLeft,
               child: Text(
                 'Menu',
-                style: TextStyle(color: Colors.white, fontSize: 20),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-            ListTile(
-              leading: Icon(Icons.home, size: 20),
-              title: Text(
-                'Home',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.person, size: 20),
-              title: Text(
-                'Profile',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text("les informations de profile"),
-                ));
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.settings, size: 20),
-              title: Text(
-                'Settings',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text("Settings clicked"),
-                ));
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.logout_outlined, size: 20),
-              title: Text(
-                'Log Out',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              onTap: () {
-                Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => HomeScreen()));
-              },
-            ),
-          ],
+          ),
+          _buildDrawerItem(
+            context,
+            icon: Icons.home,
+            text: 'Home',
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HomeScreen()),
+              );
+            },
+          ),
+          _buildDrawerItem(
+            context,
+            icon: Icons.person,
+            text: 'Profile',
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text("Profile information"),
+              ));
+            },
+          ),
+          _buildDrawerItem(
+            context,
+            icon: Icons.settings,
+            text: 'Settings',
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text("Settings clicked"),
+              ));
+            },
+          ),
+          _buildDrawerItem(
+            context,
+            icon: Icons.logout,
+            text: 'Log Out',
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => LoginScreen()),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDrawerItem(BuildContext context, {required IconData icon, required String text, required VoidCallback onTap}) {
+    return ListTile(
+      leading: Icon(icon, size: 24, color: Colors.blueAccent),
+      title: Text(
+        text,
+        style: TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 16,
+          color: Colors.black87,
         ),
       ),
+      onTap: onTap,
     );
   }
 }
