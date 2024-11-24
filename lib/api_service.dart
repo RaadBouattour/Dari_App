@@ -22,6 +22,84 @@ class ApiService {
     }
   }
 
+
+  static Future<void> deleteUser(String userId) async {
+    final url = Uri.parse('$baseUrl/auth/$userId/deleteUser');
+    final token = await AuthService.getToken(); // Retrieve the token dynamically
+
+    if (token == null) {
+      throw Exception('No token found. Please log in again.');
+    }
+
+    final response = await http.delete(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to delete user: ${response.body}');
+    }
+  }
+
+  static Future<void> updateUser({
+    required String userId,
+    required String name,
+    required String email,
+    String? password, // Password is optional
+  }) async {
+    final url = Uri.parse('$baseUrl/auth/$userId/updateUser');
+    final token = await AuthService.getToken();
+
+    if (token == null) {
+      throw Exception('No token found. Please log in again.');
+    }
+
+    final body = {
+      'name': name,
+      'email': email,
+    };
+
+    if (password != null && password.isNotEmpty) {
+      body['password'] = password;
+    }
+
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(body),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update user: ${response.body}');
+    }
+  }
+
+
+  static Future<void> deleteHouse(String houseId) async {
+    final url = Uri.parse('$baseUrl/houses/$houseId');
+    final token = await AuthService.getToken(); // Retrieve token for authentication
+
+    final response = await http.delete(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to delete house: ${response.body}');
+    }
+  }
+
+
+
   // Fetch Users API with dynamic token retrieval
   static Future<List<Map<String, dynamic>>> fetchUsers() async {
     final url = Uri.parse('$baseUrl/auth/getall');
