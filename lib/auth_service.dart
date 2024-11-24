@@ -1,9 +1,11 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   static const String baseUrl = 'http://192.168.123.150:5000'; // ***** Dima Yetbaddel dima tf9doooo ***** ///////
+  static const _storage = FlutterSecureStorage();
 
   static Future<bool> checkLoginStatus() async {
     final prefs = await SharedPreferences.getInstance();
@@ -41,12 +43,26 @@ class AuthService {
   }
 
 
+  // Save the token
   static Future<void> saveToken(String token) async {
+    await _storage.write(key: 'authToken', value: token);
+  }
+
+  // Retrieve the token
+  static Future<String?> getToken() async {
+    return await _storage.read(key: 'authToken');
+  }
+
+  // Delete the token (e.g., during logout)
+  static Future<void> deleteToken() async {
+    await _storage.delete(key: 'authToken');
+  }
+
+  /*static Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('authToken', token);
     print("Token saved: $token"); // Add this debug line
-  }
-
+  } */
   static Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('authToken');

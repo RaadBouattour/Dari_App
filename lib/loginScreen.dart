@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:dari_version_complete/api_service.dart';
 import 'SignUpScreen.dart';
+import 'admin/admin_dashboard_screen.dart';
+import 'auth_service.dart';
 import 'dashboardScreen.dart';
 import 'homeScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -50,24 +52,29 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final response = await ApiService.login(email, password);
 
-      // Extract token from response
+      // Extract token and role from the response
       final token = response['token'];
       final role = response['role'];
 
-      // Save token and role in SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('authToken', token);
-      await prefs.setString('userRole', role);
+      // Save the token for future API requests
+      await AuthService.saveToken(token);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Login successful!')),
       );
 
-      // Navigate to Dashboard
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => DashboardScreen()),
-      );
+      // Navigate based on role
+      if (role == 'admin') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => AdminDashboardScreen()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => DashboardScreen()),
+        );
+      }
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Login failed: $error')),
@@ -78,6 +85,8 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
