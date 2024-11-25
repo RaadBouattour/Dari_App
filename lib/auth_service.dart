@@ -7,6 +7,26 @@ class AuthService {
   static const String baseUrl = 'http://192.168.123.150:5000'; // ***** Dima Yetbaddel dima tf9doooo ***** ///////
   static const _storage = FlutterSecureStorage();
 
+  // Fetch the role of the authenticated user
+  static Future<String?> getUserRole() async {
+    final token = await getToken();
+    if (token == null) return null;
+
+    final url = Uri.parse('$baseUrl/auth/check-login');
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['role']; // Assuming your backend sends 'role' in the response
+    } else {
+      return null;
+    }
+  }
+
+
   static Future<bool> checkLoginStatus() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('authToken');
@@ -62,7 +82,7 @@ class AuthService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('authToken', token);
     print("Token saved: $token"); // Add this debug line
-  } */
+  }*/
   static Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('authToken');

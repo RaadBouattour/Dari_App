@@ -161,9 +161,50 @@ class ApiService {
     }
   }
 
+
+  static Future<Map<String, dynamic>> fetchUserProfile() async {
+    final url = Uri.parse('$baseUrl/auth/profile');
+    final token = await AuthService.getToken();
+
+    if (token == null) {
+      throw Exception('No token found. Please log in again.');
+    }
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        return {
+          'id': data['id'] ?? 'N/A',
+          'name': data['name'] ?? 'Unnamed User',
+          'email': data['email'] ?? 'No email',
+          'dateJoined': data['dateJoined'] != null
+              ? DateTime.parse(data['dateJoined']).toLocal().toString()
+              : 'N/A',
+        };
+      } else if (response.statusCode == 401) {
+        throw Exception('Unauthorized. Please log in again.');
+      } else {
+        throw Exception('Failed to fetch user profile: ${response.body}');
+      }
+    } catch (error) {
+      throw Exception('Error fetching user profile: $error');
+    }
+  }
+
+
+
+
   // Method to add a house
   static Future<void> addHouse(Map<String, dynamic> houseData) async {
-    final url = Uri.parse('$baseUrl/add');
+    final url = Uri.parse('$baseUrl/houses/add');
     try {
       final token = await AuthService.getToken(); // Get the token dynamically
       if (token == null) {

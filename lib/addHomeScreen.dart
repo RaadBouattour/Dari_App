@@ -5,9 +5,8 @@ import 'package:dari_version_complete/api_service.dart';
 import 'package:dari_version_complete/allHousesScreen.dart';
 import 'package:dari_version_complete/homeScreen.dart';
 import 'package:dari_version_complete/loginScreen.dart';
-import 'package:http/http.dart' as http;
+import 'package:dari_version_complete/auth_service.dart';
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class AddHomeScreen extends StatefulWidget {
   @override
@@ -26,9 +25,6 @@ class _AddHomeScreenState extends State<AddHomeScreen> {
   final TextEditingController _roomsController = TextEditingController();
   final TextEditingController _wcController = TextEditingController();
 
-  static const String baseUrl = 'http://192.168.123.150:5000'; // Dima Yetbaddel dima tf9do
-
-
   File? _selectedImage;
   int _currentStep = 0;
   int _selectedIndex = 2;
@@ -43,39 +39,25 @@ class _AddHomeScreenState extends State<AddHomeScreen> {
   }
 
   Future<void> _checkLoginStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('authToken');
-
-    if (token == null) {
-      setState(() {
-        _isLoggedIn = false;
-      });
-      return;
-    }
-
-    final url = Uri.parse('$baseUrl/auth/check-login'); //********************//
     try {
-      final response = await http.get(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token',
-        },
-      );
+      final isLoggedIn = await AuthService.checkLoginStatus();
+      final token = await AuthService.getToken();
 
-      if (response.statusCode == 200) {
-        setState(() {
-          _isLoggedIn = true;
-          _authToken = token; // Store the token for API calls
-        });
+      setState(() {
+        _isLoggedIn = isLoggedIn;
+        _authToken = token;
+      });
+
+      if (!isLoggedIn) {
+        print("User is not logged in.");
       } else {
-        setState(() {
-          _isLoggedIn = false;
-        });
+        print("User is logged in. Token: $_authToken");
       }
     } catch (e) {
       setState(() {
         _isLoggedIn = false;
       });
+      print("Error checking login status: $e");
     }
   }
 
@@ -113,10 +95,10 @@ class _AddHomeScreenState extends State<AddHomeScreen> {
   }
 
   Future<void> _submitForm() async {
-    if (!_isLoggedIn) {
+    /*if (!_isLoggedIn) {
       _showLoginPrompt();
       return;
-    }
+    }*/
 
     if (_formKey.currentState?.validate() ?? false) {
       if (_selectedImage == null) {
@@ -145,32 +127,17 @@ class _AddHomeScreenState extends State<AddHomeScreen> {
       });
 
       try {
-        final url = Uri.parse('$baseUrl/houses/add');       ////***********//
-        final response = await http.post(
-          url,
-          headers: {
-            'Authorization': 'Bearer $_authToken',
-            'Content-Type': 'application/json',
-          },
-          body: jsonEncode(houseData),
+        await ApiService.addHouse(houseData);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Maison ajoutée avec succès!')),
         );
-
-        if (response.statusCode == 201) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Maison ajoutée avec succès!')),
-          );
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => AllHousesScreen()),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Échec de l\'ajout de la maison: ${response.body}')),
-          );
-        }
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => AllHousesScreen()),
+        );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e')),
+          SnackBar(content: Text('Échec de l\'ajout de la maison: $e')),
         );
       } finally {
         setState(() {
@@ -240,17 +207,11 @@ class _AddHomeScreenState extends State<AddHomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildTextField("Titre :", "Titre de la propriété", _titleController),
-                  const SizedBox(height: 20),
                   _buildTextField("Type :", "Type de propriété", _typeController),
-                  const SizedBox(height: 20),
                   _buildTextField("Description :", "Description de la propriété", _descriptionController),
-                  const SizedBox(height: 20),
                   _buildTextField("Adresse :", "Adresse de la propriété", _addressController),
-                  const SizedBox(height: 20),
                   _buildTextField("Prix par nuit :", "Prix en TND", _pricePerNightController),
-                  const SizedBox(height: 20),
                   _buildTextField("Prix par mois :", "Prix en TND", _pricePerMonthController),
-                  const SizedBox(height: 20),
                   _buildTextField("Surface :", "Surface en m²", _surfaceController),
                 ],
               ),
@@ -262,14 +223,11 @@ class _AddHomeScreenState extends State<AddHomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildTextField("Chambres :", "Nombre de chambres", _roomsController),
-                const SizedBox(height: 20),
                 _buildTextField("Salles de bain :", "Nombre de salles de bain", _wcController),
-                const SizedBox(height: 20),
                 const Text(
                   "Ajouter une photo :",
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                 ),
-                const SizedBox(height: 10),
                 GestureDetector(
                   onTap: _pickImage,
                   child: Container(
@@ -311,7 +269,6 @@ class _AddHomeScreenState extends State<AddHomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-        const SizedBox(height: 5),
         TextFormField(
           controller: controller,
           validator: (value) => value?.isEmpty ?? true ? "Ce champ est obligatoire" : null,
@@ -325,6 +282,7 @@ class _AddHomeScreenState extends State<AddHomeScreen> {
             ),
           ),
         ),
+        const SizedBox(height: 10),
       ],
     );
   }

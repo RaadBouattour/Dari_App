@@ -157,14 +157,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                 ),
               ),
               title: Text(user['name'] ?? 'Unnamed User'),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(user['email'] ?? 'No email provided'),
-                  const SizedBox(height: 4),
-                  Text('Houses: ${user['houses'].length}'),
-                ],
-              ),
+              subtitle: Text(user['email'] ?? 'No email provided'),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
